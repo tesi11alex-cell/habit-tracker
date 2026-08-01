@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Habit Tracker 2026–2030</title>
+<!-- Versione 2026-08-01-firestore-delete-fix -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -570,11 +571,13 @@ try{
     setSyncStatus('Salvataggio…');
     cloudSaveTimer = setTimeout(async ()=>{
       try{
+        // Sostituisce l'intero documento: così le caselle eliminate
+        // (per esempio “non applicabile” → vuota) vengono rimosse anche da Firestore.
         await setDoc(userDocRef, {
           data: state.data,
           updatedAt: serverTimestamp(),
           email: currentUser.email || ''
-        }, {merge:true});
+        });
         localChangePending = false;
         setSyncStatus('Sincronizzato');
       }catch(error){
@@ -1378,7 +1381,7 @@ try{
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
         applyingCloudData = false;
       }else{
-        await setDoc(userDocRef, {data: state.data, updatedAt: serverTimestamp(), email:user.email || ''}, {merge:true});
+        await setDoc(userDocRef, {data: state.data, updatedAt: serverTimestamp(), email:user.email || ''});
       }
     }catch(error){
       console.error(error);
