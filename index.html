@@ -555,6 +555,7 @@ try{
   let unsubscribeCloud = null;
   let cloudSaveTimer = null;
   let applyingCloudData = false;
+  let localChangePending = false;
 
   function setSyncStatus(text){
     const el = document.getElementById('syncStatus');
@@ -564,6 +565,7 @@ try{
   function saveData(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
     if(!currentUser || !userDocRef || applyingCloudData) return;
+    localChangePending = true;
     clearTimeout(cloudSaveTimer);
     setSyncStatus('Salvataggio…');
     cloudSaveTimer = setTimeout(async ()=>{
@@ -573,12 +575,14 @@ try{
           updatedAt: serverTimestamp(),
           email: currentUser.email || ''
         }, {merge:true});
+        localChangePending = false;
         setSyncStatus('Sincronizzato');
       }catch(error){
+        localChangePending = false;
         console.error(error);
         setSyncStatus('Offline · salvato sul dispositivo');
       }
-    }, 250);
+    }, 100);
   }
   function daysInMonth(year, monthIdx){ return new Date(year, monthIdx+1, 0).getDate(); }
   function isWeekend(year, monthIdx, day){
@@ -629,9 +633,20 @@ try{
   }
 
   function cycleState(cur){
-    if(cur === undefined || cur === 0) return 1;
-    if(cur === 1) return 2;
-    return 0;
+    const value = Number(cur || 0);
+    if(value===2) return 0; // non applicabile → vuota
+    if(value===1) return 2; // fatta → non applicabile
+    return 1;               // vuota → fatta
+  }
+
+  function changeEntryManually(key){
+    const current = Number(state.data.entries[key] || 0);
+    const next = cycleState(current);
+    // Dopo un tocco la scelta è manuale: la cadenza non deve ripristinarla subito.
+    delete state.data.autoSkips[key];
+    if(next===0) delete state.data.entries[key];
+    else state.data.entries[key] = next;
+    saveData();
   }
 
   function cadenceLabel(days){
@@ -804,12 +819,7 @@ try{
         const day = parseInt(box.dataset.day, 10);
         const hIdx = parseInt(box.dataset.habit, 10);
         const key = entryKey(state.year, state.month, day, hIdx);
-        const cur = state.data.entries[key] || 0;
-        const next = cycleState(cur);
-        delete state.data.autoSkips[key];
-        if(next===0) delete state.data.entries[key];
-        else state.data.entries[key] = next;
-        saveData();
+        changeEntryManually(key);
         renderMonthView();
       });
     });
@@ -951,12 +961,7 @@ try{
       box.addEventListener('click', ()=>{
         const hIdx = parseInt(box.dataset.habit,10);
         const key = entryKey(year, monthObj.key, day, hIdx);
-        const cur = state.data.entries[key] || 0;
-        const next = cycleState(cur);
-        delete state.data.autoSkips[key];
-        if(next===0) delete state.data.entries[key];
-        else state.data.entries[key] = next;
-        saveData();
+        changeEntryManually(key);
         renderDailyView();
       });
     });
@@ -1387,6 +1392,8 @@ try{
     if(unsubscribeCloud) unsubscribeCloud();
     unsubscribeCloud = onSnapshot(userDocRef, {includeMetadataChanges:true}, snapshot=>{
       if(!snapshot.exists() || !snapshot.data().data) return;
+      // Evita che una copia cloud precedente rimetta il trattino subito dopo il tocco.
+      if(localChangePending && !snapshot.metadata.hasPendingWrites) return;
       const incoming = normalizeData(snapshot.data().data);
       if(JSON.stringify(incoming) !== JSON.stringify(state.data)){
         applyingCloudData = true;
