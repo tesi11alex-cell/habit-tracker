@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker 2026–2030</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --panel-2: #111111;
+    --line: #2e2e2e;
+    --line-soft: #1c1c1c;
+    --ink: #ffffff;
+    --ink-dim: #b8b8b8;
+    --ink-faint: #767676;
+    --ember: #e8734a;
+    --ember-soft: rgba(232,115,74,0.16);
+    --gold: #d9b25f;
+    --skip: #3a3a3a;
+    --skip-ink: #9a9a9a;
+    --good: #6fb98f;
+    --today: #ffffff;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    padding: 32px 20px 80px;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    flex-wrap: wrap; gap: 20px;
+    padding-bottom: 22px; margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: .18em; text-transform: uppercase;
+    font-size: 11px; color: var(--ember); margin: 0 0 6px;
+  }
+  h1{
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: 34px; margin: 0; letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  h1 em{ color: var(--gold); font-style: italic; font-weight: 400; }
+
+  .year-tabs{ display:flex; align-items:center; gap:4px; background: var(--panel); padding:5px; border-radius:999px; border:1px solid var(--line); }
+  .year-tab{
+    font-family:'IBM Plex Mono', monospace; font-size:16px; width:34px; height:32px; padding:0;
+    border-radius:999px; cursor:pointer; color:var(--ink-dim); background:none; border:none;
+    transition:all .15s ease;
+  }
+  .year-tab:hover:not(:disabled){ color:var(--ink); background:var(--panel-2); }
+  .year-tab:disabled{ opacity:.25; cursor:default; }
+  .year-current{
+    min-width:58px; text-align:center; font-family:'IBM Plex Mono', monospace;
+    font-size:13px; font-weight:600; color:var(--ink);
+  }
+
+  /* ---------- Month nav ---------- */
+  nav.months{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 24px;
+  }
+  .m-btn{
+    font-family:'Inter'; font-size: 13.5px; font-weight:500; padding: 9px 16px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim);
+    border-radius: 8px; cursor:pointer; transition: all .15s ease;
+  }
+  .m-btn:hover{ border-color: var(--ember); color: var(--ink); }
+  .m-btn.active{ background: var(--ember-soft); border-color: var(--ember); color: var(--ember); font-weight:600; }
+  .m-btn.summary{ margin-left: auto; border-style: dashed; }
+
+  /* ---------- Panel ---------- */
+  .panel{
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 26px; margin-bottom: 24px;
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .panel-title{ font-family:'Fraunces', serif; font-size: 21px; font-weight:600; }
+  .panel-sub{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-faint); letter-spacing:.04em;}
+
+  .legend{ display:flex; gap:16px; font-size:12px; color:var(--ink-dim); flex-wrap:wrap;}
+  .legend span{ display:inline-flex; align-items:center; gap:6px;}
+  .swatch{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+
+  /* ---------- Table ---------- */
+  .grid-scroll{ overflow-x:auto; padding-bottom: 6px; }
+  table.tracker{ border-collapse: collapse; width:100%; min-width: 920px; }
+  table.tracker th, table.tracker td{ text-align:center; padding:0; }
+  .habit-col{ text-align:left !important; min-width: 190px; max-width:190px; padding: 0 12px !important; }
+  .day-col{ width: 30px; }
+  th.day-num{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color: var(--ink-faint);
+    font-weight:500; padding-bottom:6px; border-bottom:1px solid var(--line);
+  }
+  th.day-num.weekend{ color: var(--gold); }
+  th.day-num.today{ color: #000; background: var(--today); border-radius: 5px 5px 0 0; padding: 3px 4px; }
+  .box.today-col{ box-shadow: 0 0 0 2px var(--today) inset; }
+  .day-total-num.today-col{ box-shadow: 0 0 0 2px var(--today) inset; border-radius:5px; padding:2px 4px; }
+  th.habit-head, th.tot-head{
+    font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint);
+    padding-bottom:8px; border-bottom:1px solid var(--line); font-weight:600;
+  }
+  td.habit-name{
+    font-size:14px; font-weight:500; color: var(--ink); padding: 11px 12px !important;
+    border-bottom:1px solid var(--line-soft); position: relative;
+  }
+  .habit-name input{
+    background:none; border:none; color:var(--ink); font: inherit; width:100%; padding:0;
+  }
+  .habit-name input:focus{ outline:none; border-bottom: 1px solid var(--ember); }
+  .habit-meta{ margin-top:5px; display:flex; align-items:center; gap:6px; }
+  .cadence-btn{
+    background:none; border:none; padding:0; color:var(--ink-faint); cursor:pointer;
+    font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-align:left;
+  }
+  .cadence-btn:hover{ color:var(--gold); }
+  .del-habit{
+    position:absolute; right:6px; top:11px; transform:none;
+    background:none; border:none; color: var(--ink-faint); cursor:pointer; font-size:14px;
+    opacity:0; transition: opacity .12s;
+  }
+  td.habit-name:hover .del-habit{ opacity: 1;}
+  .del-habit:hover{ color:var(--ember); }
+
+  td.cell{ border-bottom:1px solid var(--line-soft); padding: 5px 2px !important; }
+  .box{
+    width: 22px; height:22px; margin:0 auto; border-radius:6px;
+    border: 1px solid var(--line); cursor:pointer; user-select:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 12px; color:transparent; transition: all .1s ease;
+    background: rgba(255,255,255,0.02);
+  }
+  .box:hover{ border-color: var(--ink-faint); }
+  .box.done{ background: var(--ember); border-color: var(--ember); color:#1a1108; font-weight:700; }
+  .box.done::after{ content:"✓"; }
+  .box.skip{ background: var(--skip); border-color: var(--skip); color: var(--skip-ink); font-weight:700;}
+  .box.skip::after{ content:"–"; }
+  .box.off{ background:rgba(255,255,255,0.025); border-color:var(--line-soft); cursor:default; opacity:.55; }
+  .box.off::after{ content:"–"; color:var(--ink-faint); }
+  .box.off:hover{ border-color:var(--line-soft); }
+
+  td.tot-cell{ font-family:'IBM Plex Mono', monospace; font-size:13px; border-bottom:1px solid var(--line-soft); color: var(--ink); font-weight:500; }
+  td.pct-cell{ font-family:'IBM Plex Mono', monospace; font-size:13px; border-bottom:1px solid var(--line-soft); color: var(--gold); font-weight:600; }
+
+  tr.daily-total td{ padding-top:12px !important; }
+  tr.daily-total .habit-name{ font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-dim); border-bottom:none;}
+  tr.daily-total td.cell{ border-bottom:none; }
+  .day-total-num{ font-family:'IBM Plex Mono', monospace; font-size:8.5px; color: var(--ink-faint); white-space:nowrap; letter-spacing:-0.02em; }
+  .day-total-num.full{ color: var(--good); font-weight:700; }
+
+  .add-habit-row{ margin-top:14px; }
+  .add-btn{
+    background: none; border: 1px dashed var(--line); color: var(--ink-dim);
+    padding: 9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-family:'Inter';
+    transition: all .15s;
+  }
+  .add-btn:hover{ border-color: var(--ember); color: var(--ember); }
+
+  /* ---------- Annual summary ---------- */
+  table.annual{ border-collapse: collapse; width:100%; min-width: 760px; }
+  table.annual th, table.annual td{ text-align:center; padding: 10px 8px; font-size:13px; }
+  table.annual th{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase;
+    color:var(--ink-faint); border-bottom:1px solid var(--line); letter-spacing:.06em;
+  }
+  table.annual td.habit-lbl{ text-align:left; font-weight:500; color:var(--ink); }
+  table.annual td{ border-bottom:1px solid var(--line-soft); font-family:'IBM Plex Mono', monospace; color:var(--ink-dim); }
+  table.annual td.avg{ color: var(--gold); font-weight:700; }
+  table.annual tr.avg-row td{ color: var(--ink); font-weight:700; border-top:1px solid var(--line); }
+  .heat{ display:inline-block; width:34px; height:20px; border-radius:5px; line-height:20px; }
+
+  /* ---------- Multi-year comparison ---------- */
+  .comparison-section{
+    margin-top:32px; padding-top:26px; border-top:1px solid var(--line);
+  }
+  .comparison-table{ border-collapse:collapse; width:100%; min-width:620px; margin-top:16px; }
+  .comparison-table th, .comparison-table td{
+    padding:10px 12px; border-bottom:1px solid var(--line-soft); text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+  }
+  .comparison-table th{
+    color:var(--ink-faint); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
+  }
+  .comparison-table th:first-child, .comparison-table td:first-child{ text-align:left; }
+  .comparison-table td{ color:var(--ink-dim); }
+  .comparison-table td.year-value{ color:var(--ink); font-weight:700; }
+  .comparison-table td.positive{ color:var(--good); font-weight:700; }
+  .comparison-table td.negative{ color:var(--ember); font-weight:700; }
+  .comparison-table td.no-data{ color:var(--ink-faint); font-style:italic; }
+  .comparison-report{
+    margin-top:18px; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px;
+  }
+  .report-item{
+    background:var(--panel-2); border:1px solid var(--line-soft); border-radius:8px;
+    padding:13px 14px; color:var(--ink-dim); font-size:12.5px; line-height:1.45;
+  }
+  .report-item strong{ display:block; color:var(--ink); font-size:12px; margin-bottom:3px; }
+  .report-note{
+    margin-top:12px; color:var(--ink-faint); font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; line-height:1.5;
+  }
+
+  footer.tools{
+    display:flex; gap:10px; justify-content:flex-end; margin-top: 6px; flex-wrap:wrap;
+  }
+  .tool-btn{
+    background: var(--panel-2); border:1px solid var(--line); color:var(--ink-dim);
+    padding: 8px 14px; border-radius:7px; font-size:12.5px; cursor:pointer; font-family:'Inter';
+  }
+  .tool-btn:hover{ color:var(--ink); border-color: var(--ink-faint); }
+  input[type=file]{ display:none; }
+
+
+  /* ---------- Cadence modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.78);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-card{
+    width:min(480px, 100%); background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); padding:22px; box-shadow:0 22px 70px rgba(0,0,0,.55);
+  }
+  .modal-title{ font-family:'Fraunces', serif; font-size:22px; font-weight:600; margin-bottom:5px; }
+  .modal-sub{ color:var(--ink-dim); font-size:12.5px; margin-bottom:18px; line-height:1.45; }
+  .field-label{ display:block; color:var(--ink-dim); font-size:12px; font-weight:600; margin:14px 0 7px; }
+  .modal-input{
+    width:100%; background:var(--panel-2); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:10px 11px; font:inherit;
+  }
+  .modal-input:focus{ outline:none; border-color:var(--ember); }
+  .preset-row{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px; }
+  .preset-btn{
+    background:var(--panel-2); color:var(--ink-dim); border:1px solid var(--line);
+    border-radius:7px; padding:7px 10px; cursor:pointer; font-size:11.5px;
+  }
+  .preset-btn:hover{ color:var(--ink); border-color:var(--ink-faint); }
+  .weekday-row{ display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; }
+  .weekday-btn{
+    min-width:0; background:var(--panel-2); color:var(--ink-dim); border:1px solid var(--line);
+    border-radius:8px; padding:9px 3px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+  }
+  .weekday-btn.selected{ background:var(--ember-soft); color:var(--ember); border-color:var(--ember); font-weight:700; }
+  .cadence-summary{ margin-top:10px; color:var(--gold); font-size:11.5px; min-height:17px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:9px; margin-top:20px; }
+  .modal-actions button{ padding:9px 14px; border-radius:8px; cursor:pointer; font-family:'Inter'; font-size:13px; }
+  .modal-cancel{ background:var(--panel-2); border:1px solid var(--line); color:var(--ink-dim); }
+  .modal-save{ background:var(--ember); border:1px solid var(--ember); color:#1a1108; font-weight:700; }
+  [hidden]{ display:none !important; }
+
+  /* ---------- Google access ---------- */
+  .login-screen{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .login-card{
+    width:min(430px,100%); background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); padding:30px; text-align:center;
+  }
+  .login-card h2{ font-family:'Fraunces',serif; font-size:28px; margin:0 0 8px; }
+  .login-card p{ color:var(--ink-dim); font-size:13px; line-height:1.5; margin:0 0 20px; }
+  .google-btn{
+    width:100%; padding:11px 16px; border-radius:8px; border:1px solid var(--line);
+    background:#fff; color:#171717; font:600 14px 'Inter'; cursor:pointer;
+  }
+  .google-btn:hover{ background:#ececec; }
+  .login-error{ min-height:18px; margin-top:12px; color:var(--ember); font-size:12px; }
+  .user-box{ display:flex; align-items:center; gap:8px; }
+  .user-avatar{ width:30px; height:30px; border-radius:50%; object-fit:cover; border:1px solid var(--line); }
+  .user-email{ max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-dim); font-size:11px; }
+  .sync-status{ color:var(--ink-faint); font-family:'IBM Plex Mono',monospace; font-size:9.5px; }
+
+  /* ---------- Vista giornaliera telefono ---------- */
+  .mobile-day-header{
+    display:grid; grid-template-columns:42px minmax(0,1fr) 42px; align-items:center;
+    gap:10px; margin-bottom:16px;
+  }
+  .mobile-day-nav{
+    width:42px; height:42px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink); cursor:pointer; font-size:22px;
+  }
+  .mobile-day-nav:disabled{ opacity:.25; cursor:default; }
+  .mobile-day-date{ text-align:center; min-width:0; }
+  .mobile-day-date .panel-title{ font-size:23px; }
+  .mobile-day-date .panel-sub{ margin-top:4px; }
+  .mobile-day-actions{ display:flex; justify-content:center; margin:-2px 0 18px; }
+  .mobile-view-btn{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--ink-dim);
+    padding:8px 13px; border-radius:8px; cursor:pointer; font:600 12px 'Inter';
+  }
+  .mobile-view-btn:hover{ color:var(--ink); border-color:var(--ember); }
+  .mobile-day-total{
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:13px 14px; margin-bottom:12px;
+  }
+  .mobile-day-total-label{ color:var(--ink-dim); font-size:12px; font-weight:600; }
+  .mobile-day-total-value{ font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:700; }
+  .mobile-day-total-value.full{ color:var(--good); }
+  .mobile-day-list{ display:flex; flex-direction:column; gap:8px; }
+  .mobile-habit-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    min-height:66px; padding:11px 12px; background:var(--panel-2);
+    border:1px solid var(--line-soft); border-radius:10px;
+  }
+  .mobile-habit-copy{ min-width:0; flex:1; }
+  .mobile-habit-name{ color:var(--ink); font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+  .mobile-habit-status{ margin-top:4px; color:var(--ink-faint); font:10px 'IBM Plex Mono',monospace; }
+  .mobile-habit-row .cadence-btn{ margin-top:5px; display:block; }
+  .box.mobile-box{ width:40px; height:40px; min-width:40px; border-radius:10px; font-size:16px; }
+  .mobile-month-toolbar{ display:none; justify-content:flex-end; margin-bottom:14px; }
+
+  @media (max-width: 700px){
+    body{ padding:18px 12px 52px; }
+    h1{ font-size:26px; }
+    .panel{ padding:16px; }
+    header.top{ align-items:flex-start; gap:12px; padding-bottom:16px; margin-bottom:16px; }
+    header.top > div:last-child{ width:100%; flex-wrap:wrap; }
+    .user-box{ margin-left:auto; }
+    .user-email{ max-width:130px; }
+    #appShell.mobile-day-mode .year-tabs{ display:none; }
+    #appShell.mobile-day-mode nav.months{ display:none; }
+    nav.months{ flex-wrap:nowrap; overflow-x:auto; padding-bottom:5px; }
+    .m-btn{ white-space:nowrap; }
+    .m-btn.summary{ margin-left:0; }
+    .mobile-month-toolbar{ display:flex; }
+    .comparison-report{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <h2>Habit <em style="color:var(--gold);font-weight:400;">Tracker</em></h2>
+    <p>Accedi con il tuo account Google per visualizzare e sincronizzare le tue abitudini su tutti i dispositivi.</p>
+    <button class="google-btn" id="googleLoginBtn" type="button">Accedi con Google</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div class="wrap" id="appShell" hidden>
+
+  <header class="top">
+    <div>
+      <h1>Habit <em>Tracker</em></h1>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <button class="tool-btn" id="todayBtn">Vai a oggi</button>
+      <div class="year-tabs" id="yearTabs"></div>
+      <div class="user-box">
+        <img class="user-avatar" id="userAvatar" alt="" hidden>
+        <div>
+          <div class="user-email" id="userEmail"></div>
+          <div class="sync-status" id="syncStatus">Connessione…</div>
+        </div>
+        <button class="tool-btn" id="logoutBtn" type="button">Esci</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="months" id="monthNav"></nav>
+
+  <div id="monthView" class="panel"></div>
+  <div id="annualView" class="panel" style="display:none;"></div>
+
+
+</div>
+
+
+<div class="modal-backdrop" id="habitModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="habitModalTitle">
+    <div class="modal-title" id="habitModalTitle">Nuova abitudine</div>
+    <div class="modal-sub">Scegli i giorni previsti. Gli altri verranno segnati automaticamente come “non applicabile”, ma potrai modificare ogni casella manualmente.</div>
+
+    <label class="field-label" for="modalHabitName">Nome dell’abitudine</label>
+    <input class="modal-input" id="modalHabitName" type="text" maxlength="80" autocomplete="off">
+
+    <span class="field-label">Cadenza settimanale</span>
+    <div class="preset-row">
+      <button type="button" class="preset-btn" data-preset="all">Tutti i giorni</button>
+      <button type="button" class="preset-btn" data-preset="weekdays">Lun–Ven</button>
+      <button type="button" class="preset-btn" data-preset="mwf">Lun · Mer · Ven</button>
+      <button type="button" class="preset-btn" data-preset="none">Deseleziona</button>
+    </div>
+    <div class="weekday-row" id="weekdayRow">
+      <button type="button" class="weekday-btn" data-day="1">Lun</button>
+      <button type="button" class="weekday-btn" data-day="2">Mar</button>
+      <button type="button" class="weekday-btn" data-day="3">Mer</button>
+      <button type="button" class="weekday-btn" data-day="4">Gio</button>
+      <button type="button" class="weekday-btn" data-day="5">Ven</button>
+      <button type="button" class="weekday-btn" data-day="6">Sab</button>
+      <button type="button" class="weekday-btn" data-day="0">Dom</button>
+    </div>
+    <div class="cadence-summary" id="cadenceSummary"></div>
+
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" id="cancelHabitModal">Annulla</button>
+      <button type="button" class="modal-save" id="saveHabitModal">Salva</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getRedirectResult, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
+import {
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  doc, getDoc, setDoc, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtMWCBxgR-rJ1F3PHlMyp6egBBXOecIww",
+  authDomain: "habit-tracker-alessandro.firebaseapp.com",
+  projectId: "habit-tracker-alessandro",
+  storageBucket: "habit-tracker-alessandro.firebasestorage.app",
+  messagingSenderId: "787927975492",
+  appId: "1:787927975492:web:e78a449ea16bfbbeec9e11"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+auth.languageCode = 'it';
+let db;
+try{
+  db = initializeFirestore(firebaseApp, {
+    localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
+  });
+}catch(error){
+  db = initializeFirestore(firebaseApp, {});
+}
+
+(function(){
+  const STORAGE_KEY = 'habitTrackerData_v1';
+  const MONTHS = [
+    {key:'Gen', name:'Gennaio', idx:0}, {key:'Feb', name:'Febbraio', idx:1},
+    {key:'Mar', name:'Marzo', idx:2}, {key:'Apr', name:'Aprile', idx:3},
+    {key:'Mag', name:'Maggio', idx:4}, {key:'Giu', name:'Giugno', idx:5},
+    {key:'Lug', name:'Luglio', idx:6}, {key:'Ago', name:'Agosto', idx:7},
+    {key:'Set', name:'Settembre', idx:8}, {key:'Ott', name:'Ottobre', idx:9},
+    {key:'Nov', name:'Novembre', idx:10}, {key:'Dic', name:'Dicembre', idx:11}
+  ];
+  const YEARS = [2026,2027,2028,2029,2030];
+  const ALL_DAYS = [0,1,2,3,4,5,6];
+  const DAY_NAMES = {0:'Dom',1:'Lun',2:'Mar',3:'Mer',4:'Gio',5:'Ven',6:'Sab'};
+  const DAY_ORDER = [1,2,3,4,5,6,0];
+
+  const DEFAULT_HABITS = ['Mangiare bene','Leggere','Studiare inglese','Allenamento','Diario'];
+  const DEFAULT_CADENCES = {
+    0: ALL_DAYS.slice(),
+    1: ALL_DAYS.slice(),
+    2: ALL_DAYS.slice(),
+    3: [1,3,5],
+    4: [0]
+  };
+
+  const TODAY = new Date();
+  const TODAY_Y = TODAY.getFullYear(), TODAY_M = TODAY.getMonth(), TODAY_D = TODAY.getDate();
+
+  function isToday(year, monthIdx, day){
+    return year===TODAY_Y && monthIdx===TODAY_M && day===TODAY_D;
+  }
+
+  function defaultCadenceForName(name){
+    const normalized = String(name || '').trim().toLowerCase();
+    if(normalized.includes('diario')) return [0];
+    if(normalized.includes('allen')) return [1,3,5];
+    return ALL_DAYS.slice();
+  }
+
+  function normalizeCadence(days, fallbackName){
+    if(!Array.isArray(days)) return defaultCadenceForName(fallbackName);
+    const valid = [...new Set(days.map(Number).filter(d=>Number.isInteger(d) && d>=0 && d<=6))];
+    return valid.length ? valid : defaultCadenceForName(fallbackName);
+  }
+
+  function normalizeData(data){
+    const safe = data && typeof data==='object' ? data : {};
+    if(!Array.isArray(safe.habits) || safe.habits.length===0) safe.habits = DEFAULT_HABITS.slice();
+    if(!safe.entries || typeof safe.entries!=='object' || Array.isArray(safe.entries)) safe.entries = {};
+    if(!safe.cadences || typeof safe.cadences!=='object' || Array.isArray(safe.cadences)) safe.cadences = {};
+    if(!safe.autoSkips || typeof safe.autoSkips!=='object' || Array.isArray(safe.autoSkips)) safe.autoSkips = {};
+    safe.cadenceAutoAppliedV1 = safe.cadenceAutoAppliedV1 === true;
+    safe.habits.forEach((name, idx)=>{
+      safe.cadences[idx] = normalizeCadence(safe.cadences[idx], name);
+    });
+    return safe;
+  }
+
+  function createDefaultData(){
+    const cadences = {};
+    Object.keys(DEFAULT_CADENCES).forEach(k=> cadences[k] = DEFAULT_CADENCES[k].slice());
+    return { habits: DEFAULT_HABITS.slice(), entries: {}, cadences, autoSkips: {}, cadenceAutoAppliedV1: false };
+  }
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw) return normalizeData(JSON.parse(raw));
+    }catch(e){}
+    return createDefaultData();
+  }
+
+  const initialTrackerDate = YEARS.includes(TODAY_Y)
+    ? new Date(TODAY_Y, TODAY_M, TODAY_D, 12)
+    : new Date(YEARS[0], 0, 1, 12);
+
+  const state = {
+    data: loadData(),
+    year: initialTrackerDate.getFullYear(),
+    month: MONTHS[initialTrackerDate.getMonth()].key,
+    view: 'month',
+    mobileDate: initialTrackerDate,
+    mobileMonthOverride: false
+  };
+
+  const PHONE_QUERY = window.matchMedia('(max-width: 700px)');
+  const MIN_TRACKER_DATE = new Date(YEARS[0], 0, 1, 12);
+  const MAX_TRACKER_DATE = new Date(YEARS[YEARS.length-1], 11, 31, 12);
+
+  function isPhoneView(){ return PHONE_QUERY.matches; }
+  function clampTrackerDate(date){
+    const candidate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+    if(candidate < MIN_TRACKER_DATE) return new Date(MIN_TRACKER_DATE);
+    if(candidate > MAX_TRACKER_DATE) return new Date(MAX_TRACKER_DATE);
+    return candidate;
+  }
+  function setMobileDate(date){
+    const next = clampTrackerDate(date);
+    state.mobileDate = next;
+    state.year = next.getFullYear();
+    state.month = MONTHS[next.getMonth()].key;
+  }
+  function syncMobileDateToMonthSelection(){
+    const monthObj = MONTHS.find(m=>m.key===state.month) || MONTHS[0];
+    const preferredDay = state.mobileDate ? state.mobileDate.getDate() : 1;
+    const day = Math.min(preferredDay, daysInMonth(state.year, monthObj.idx));
+    state.mobileDate = new Date(state.year, monthObj.idx, day, 12);
+  }
+
+  let currentUser = null;
+  let userDocRef = null;
+  let unsubscribeCloud = null;
+  let cloudSaveTimer = null;
+  let applyingCloudData = false;
+
+  function setSyncStatus(text){
+    const el = document.getElementById('syncStatus');
+    if(el) el.textContent = text;
+  }
+
+  function saveData(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+    if(!currentUser || !userDocRef || applyingCloudData) return;
+    clearTimeout(cloudSaveTimer);
+    setSyncStatus('Salvataggio…');
+    cloudSaveTimer = setTimeout(async ()=>{
+      try{
+        await setDoc(userDocRef, {
+          data: state.data,
+          updatedAt: serverTimestamp(),
+          email: currentUser.email || ''
+        }, {merge:true});
+        setSyncStatus('Sincronizzato');
+      }catch(error){
+        console.error(error);
+        setSyncStatus('Offline · salvato sul dispositivo');
+      }
+    }, 250);
+  }
+  function daysInMonth(year, monthIdx){ return new Date(year, monthIdx+1, 0).getDate(); }
+  function isWeekend(year, monthIdx, day){
+    const d = new Date(year, monthIdx, day).getDay();
+    return d===0 || d===6;
+  }
+  function entryKey(year, monthKey, day, habitIdx){ return year+'|'+monthKey+'|'+day+'|'+habitIdx; }
+  function getCadence(habitIdx){
+    return normalizeCadence(state.data.cadences[habitIdx], state.data.habits[habitIdx]);
+  }
+  function isScheduled(year, monthIdx, day, habitIdx){
+    return getCadence(habitIdx).includes(new Date(year, monthIdx, day).getDay());
+  }
+
+  function sameCadence(a, b){
+    const left = [...a].map(Number).sort((x,y)=>x-y);
+    const right = [...b].map(Number).sort((x,y)=>x-y);
+    return left.length===right.length && left.every((v,i)=>v===right[i]);
+  }
+
+  function applyCadenceToHabit(habitIdx, days){
+    const selected = normalizeCadence(days, state.data.habits[habitIdx]);
+    YEARS.forEach(year=>{
+      MONTHS.forEach(month=>{
+        const nDays = daysInMonth(year, month.idx);
+        for(let day=1; day<=nDays; day++){
+          const key = entryKey(year, month.key, day, habitIdx);
+          const scheduled = selected.includes(new Date(year, month.idx, day).getDay());
+          const wasAutomatic = state.data.autoSkips[key] === true;
+          const current = state.data.entries[key];
+
+          if(scheduled){
+            if(wasAutomatic && current===2) delete state.data.entries[key];
+            delete state.data.autoSkips[key];
+          }else if(wasAutomatic || current===undefined){
+            state.data.entries[key] = 2;
+            state.data.autoSkips[key] = true;
+          }
+        }
+      });
+    });
+  }
+
+  if(!state.data.cadenceAutoAppliedV1){
+    state.data.habits.forEach((_, idx)=> applyCadenceToHabit(idx, getCadence(idx)));
+    state.data.cadenceAutoAppliedV1 = true;
+    saveData();
+  }
+
+  function cycleState(cur){
+    if(cur === undefined || cur === 0) return 1;
+    if(cur === 1) return 2;
+    return 0;
+  }
+
+  function cadenceLabel(days){
+    const unique = normalizeCadence(days, '');
+    if(unique.length===7) return 'Ogni giorno';
+    const ordered = DAY_ORDER.filter(d=>unique.includes(d));
+    const frequency = unique.length===1 ? '1 volta a settimana' : unique.length+' volte a settimana';
+    return frequency+' · '+ordered.map(d=>DAY_NAMES[d]).join(', ');
+  }
+
+  // ---------------- Year navigation ----------------
+  function renderYearTabs(){
+    const el = document.getElementById('yearTabs');
+    const idx = YEARS.indexOf(state.year);
+    el.innerHTML = '';
+
+    const prev = document.createElement('button');
+    prev.className = 'year-tab';
+    prev.type = 'button';
+    prev.textContent = '‹';
+    prev.title = 'Anno precedente';
+    prev.disabled = idx<=0;
+    prev.onclick = ()=>{
+      if(idx<=0) return;
+      state.year = YEARS[idx-1];
+      syncMobileDateToMonthSelection();
+      renderYearTabs();
+      renderAll();
+    };
+
+    const current = document.createElement('span');
+    current.className = 'year-current';
+    current.textContent = state.year;
+
+    const next = document.createElement('button');
+    next.className = 'year-tab';
+    next.type = 'button';
+    next.textContent = '›';
+    next.title = 'Anno successivo';
+    next.disabled = idx>=YEARS.length-1;
+    next.onclick = ()=>{
+      if(idx>=YEARS.length-1) return;
+      state.year = YEARS[idx+1];
+      syncMobileDateToMonthSelection();
+      renderYearTabs();
+      renderAll();
+    };
+
+    el.append(prev, current, next);
+  }
+
+  // ---------------- Month navigation ----------------
+  function renderMonthNav(){
+    const el = document.getElementById('monthNav');
+    const dailyPhoneMode = isPhoneView() && state.view==='month' && !state.mobileMonthOverride;
+    el.hidden = dailyPhoneMode;
+    el.innerHTML = '';
+    MONTHS.forEach(m=>{
+      const b = document.createElement('button');
+      b.className = 'm-btn' + (state.view==='month' && state.month===m.key ? ' active':'');
+      b.textContent = m.key+'-'+String(m.idx+1).padStart(2,'0');
+      b.onclick = ()=>{
+        state.view='month';
+        state.month=m.key;
+        state.mobileMonthOverride=true;
+        syncMobileDateToMonthSelection();
+        renderMonthNav();
+        renderAll();
+      };
+      el.appendChild(b);
+    });
+    const sum = document.createElement('button');
+    sum.className = 'm-btn summary' + (state.view==='annual' ? ' active':'');
+    sum.textContent = 'Riepilogo annuale';
+    sum.onclick = ()=>{
+      state.view='annual';
+      state.mobileMonthOverride=true;
+      renderMonthNav();
+      renderAll();
+    };
+    el.appendChild(sum);
+  }
+
+  // ---------------- Statistics ----------------
+  function computeHabitStats(year, monthKey, habitIdx, nDays){
+    let done=0, skip=0;
+    for(let d=1; d<=nDays; d++){
+      const v = state.data.entries[entryKey(year, monthKey, d, habitIdx)];
+      if(v===1) done++;
+      if(v===2) skip++;
+    }
+    const applicable = nDays - skip;
+    const pct = applicable>0 ? Math.round((done/applicable)*100) : 0;
+    return {done, skip, applicable, pct};
+  }
+
+  function dayTotal(year, monthKey, monthIdx, day, nHabits){
+    let done=0, applicable=0;
+    for(let h=0; h<nHabits; h++){
+      const v = state.data.entries[entryKey(year, monthKey, day, h)];
+      if(v!==2) applicable++;
+      if(v===1) done++;
+    }
+    return {done, applicable};
+  }
+
+  // ---------------- Month view ----------------
+  function renderMonthView(){
+    const container = document.getElementById('monthView');
+    const monthObj = MONTHS.find(m=>m.key===state.month);
+    const nDays = daysInMonth(state.year, monthObj.idx);
+    const habits = state.data.habits;
+
+    let html = `<div class="panel-head">
+      <div>
+        <div class="panel-title">${monthObj.name} ${state.year}</div>
+        <div class="panel-sub">${nDays} giorni · ${habits.length} abitudini monitorate</div>
+      </div>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--ember)"></span>fatto</span>
+        <span><span class="swatch" style="background:var(--skip)"></span>non applicabile</span>
+        <span><span class="swatch" style="background:rgba(255,255,255,0.05); border:1px solid var(--line)"></span>da fare</span>
+      </div>
+    </div>`;
+
+    if(isPhoneView()){
+      html += `<div class="mobile-month-toolbar"><button type="button" class="mobile-view-btn" id="backToDayBtn">Vedi giorno</button></div>`;
+    }
+
+    html += `<div class="grid-scroll"><table class="tracker"><thead><tr>
+      <th class="habit-col habit-head">Abitudine</th>`;
+    for(let d=1; d<=nDays; d++){
+      const we = isWeekend(state.year, monthObj.idx, d);
+      const td = isToday(state.year, monthObj.idx, d);
+      html += `<th class="day-col day-num${we?' weekend':''}${td?' today':''}">${d}</th>`;
+    }
+    html += `<th class="tot-head">Tot</th><th class="tot-head">%</th></tr></thead><tbody>`;
+
+    habits.forEach((hname, hIdx)=>{
+      html += `<tr><td class="habit-name">
+        <input type="text" value="${escapeAttr(hname)}" data-habit-idx="${hIdx}" class="habit-input">
+        <div class="habit-meta"><button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica cadenza">${escapeAttr(cadenceLabel(getCadence(hIdx)))}</button></div>
+        <button class="del-habit" data-del-idx="${hIdx}" title="Rimuovi abitudine">✕</button>
+      </td>`;
+      for(let d=1; d<=nDays; d++){
+        const v = state.data.entries[entryKey(state.year, state.month, d, hIdx)] || 0;
+        const cls = v===1 ? 'done' : (v===2 ? 'skip' : '');
+        const td = isToday(state.year, monthObj.idx, d) ? ' today-col' : '';
+        html += `<td class="cell"><div class="box ${cls}${td}" data-day="${d}" data-habit="${hIdx}" title="Clic: fatto → non applicabile → da fare"></div></td>`;
+      }
+      const stats = computeHabitStats(state.year, state.month, hIdx, nDays);
+      html += `<td class="tot-cell">${stats.done}/${stats.applicable}</td><td class="pct-cell">${stats.pct}%</td></tr>`;
+    });
+
+    html += `<tr class="daily-total"><td class="habit-name">Totale giornaliero</td>`;
+    for(let d=1; d<=nDays; d++){
+      const t = dayTotal(state.year, state.month, monthObj.idx, d, habits.length);
+      const full = t.applicable>0 && t.done===t.applicable;
+      const td = isToday(state.year, monthObj.idx, d) ? ' today-col' : '';
+      html += `<td class="cell"><div class="day-total-num${full?' full':''}${td}">${t.done}/${t.applicable}</div></td>`;
+    }
+    html += `<td></td><td></td></tr>`;
+
+    html += `</tbody></table></div>`;
+    html += `<div class="add-habit-row"><button class="add-btn" id="addHabitBtn">+ aggiungi abitudine</button></div>`;
+    container.innerHTML = html;
+
+    container.querySelectorAll('.box').forEach(box=>{
+      box.addEventListener('click', ()=>{
+        const day = parseInt(box.dataset.day, 10);
+        const hIdx = parseInt(box.dataset.habit, 10);
+        const key = entryKey(state.year, state.month, day, hIdx);
+        const cur = state.data.entries[key] || 0;
+        const next = cycleState(cur);
+        delete state.data.autoSkips[key];
+        if(next===0) delete state.data.entries[key];
+        else state.data.entries[key] = next;
+        saveData();
+        renderMonthView();
+      });
+    });
+
+    container.querySelectorAll('.habit-input').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        const idx = parseInt(inp.dataset.habitIdx,10);
+        state.data.habits[idx] = inp.value.trim() || ('Abitudine '+(idx+1));
+        saveData();
+        renderMonthView();
+      });
+    });
+
+    container.querySelectorAll('.cadence-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=> openHabitModal(parseInt(btn.dataset.cadenceIdx,10)));
+    });
+
+    container.querySelectorAll('.del-habit').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = parseInt(btn.dataset.delIdx,10);
+        if(state.data.habits.length<=1){ alert('Deve rimanere almeno una abitudine.'); return; }
+        if(!confirm('Rimuovere "'+state.data.habits[idx]+'"? I dati registrati per questa abitudine andranno persi.')) return;
+        state.data.habits.splice(idx,1);
+
+        const newEntries = {};
+        Object.keys(state.data.entries).forEach(k=>{
+          const parts = k.split('|');
+          const hi = parseInt(parts[3],10);
+          if(hi===idx) return;
+          const newHi = hi>idx ? hi-1 : hi;
+          newEntries[parts[0]+'|'+parts[1]+'|'+parts[2]+'|'+newHi] = state.data.entries[k];
+        });
+        state.data.entries = newEntries;
+
+        const newAutoSkips = {};
+        Object.keys(state.data.autoSkips).forEach(k=>{
+          const parts = k.split('|');
+          const hi = parseInt(parts[3],10);
+          if(hi===idx) return;
+          const newHi = hi>idx ? hi-1 : hi;
+          newAutoSkips[parts[0]+'|'+parts[1]+'|'+parts[2]+'|'+newHi] = true;
+        });
+        state.data.autoSkips = newAutoSkips;
+
+        const newCadences = {};
+        state.data.habits.forEach((name, newIdx)=>{
+          const oldIdx = newIdx>=idx ? newIdx+1 : newIdx;
+          newCadences[newIdx] = normalizeCadence(state.data.cadences[oldIdx], name);
+        });
+        state.data.cadences = newCadences;
+
+        saveData();
+        renderMonthView();
+      });
+    });
+
+    const backToDayBtn = document.getElementById('backToDayBtn');
+    if(backToDayBtn){
+      backToDayBtn.addEventListener('click', ()=>{
+        state.mobileMonthOverride = false;
+        state.view = 'month';
+        renderMonthNav();
+        renderAll();
+      });
+    }
+
+    document.getElementById('addHabitBtn').addEventListener('click', ()=> openHabitModal(null));
+  }
+
+  // ---------------- Daily phone view ----------------
+  function renderDailyView(){
+    const container = document.getElementById('monthView');
+    const date = clampTrackerDate(state.mobileDate || initialTrackerDate);
+    setMobileDate(date);
+    const year = date.getFullYear();
+    const monthIdx = date.getMonth();
+    const monthObj = MONTHS[monthIdx];
+    const day = date.getDate();
+    const habits = state.data.habits;
+    const total = dayTotal(year, monthObj.key, monthIdx, day, habits.length);
+    const full = total.applicable>0 && total.done===total.applicable;
+    const isCurrentDay = isToday(year, monthIdx, day);
+    const dateLabel = date.toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+    const minReached = date.getTime()===MIN_TRACKER_DATE.getTime();
+    const maxReached = date.getTime()===MAX_TRACKER_DATE.getTime();
+
+    let html = `<div class="mobile-day-header">
+      <button type="button" class="mobile-day-nav" id="prevMobileDay" aria-label="Giorno precedente" ${minReached?'disabled':''}>‹</button>
+      <div class="mobile-day-date">
+        <div class="panel-title">${escapeAttr(dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1))}</div>
+        <div class="panel-sub">${isCurrentDay?'OGGI · ':''}${monthObj.key}-${String(monthIdx+1).padStart(2,'0')} ${year}</div>
+      </div>
+      <button type="button" class="mobile-day-nav" id="nextMobileDay" aria-label="Giorno successivo" ${maxReached?'disabled':''}>›</button>
+    </div>`;
+
+    html += `<div class="mobile-day-actions"><button type="button" class="mobile-view-btn" id="viewMonthBtn">Vedi mese</button></div>`;
+    html += `<div class="mobile-day-total">
+      <span class="mobile-day-total-label">Totale del giorno</span>
+      <span class="mobile-day-total-value${full?' full':''}">${total.done}/${total.applicable}</span>
+    </div>`;
+
+    html += `<div class="mobile-day-list">`;
+    habits.forEach((hname,hIdx)=>{
+      const key = entryKey(year, monthObj.key, day, hIdx);
+      const value = state.data.entries[key] || 0;
+      const cls = value===1 ? 'done' : (value===2 ? 'skip' : '');
+      const status = value===1 ? 'Fatto' : (value===2 ? 'Non applicabile' : 'Da fare');
+      html += `<div class="mobile-habit-row">
+        <div class="mobile-habit-copy">
+          <div class="mobile-habit-name">${escapeAttr(hname)}</div>
+          <div class="mobile-habit-status">${status}</div>
+          <button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica abitudine e cadenza">${escapeAttr(cadenceLabel(getCadence(hIdx)))}</button>
+        </div>
+        <button type="button" class="box mobile-box ${cls}" data-day="${day}" data-habit="${hIdx}" aria-label="${escapeAttr(hname)}: ${status}" title="Tocca: fatto → non applicabile → da fare"></button>
+      </div>`;
+    });
+    html += `</div>`;
+    html += `<div class="add-habit-row"><button class="add-btn" id="addHabitBtn">+ aggiungi abitudine</button></div>`;
+    container.innerHTML = html;
+
+    const moveDay = offset=>{
+      const next = new Date(state.mobileDate);
+      next.setDate(next.getDate()+offset);
+      setMobileDate(next);
+      renderYearTabs();
+      renderDailyView();
+    };
+    document.getElementById('prevMobileDay').addEventListener('click', ()=>moveDay(-1));
+    document.getElementById('nextMobileDay').addEventListener('click', ()=>moveDay(1));
+    document.getElementById('viewMonthBtn').addEventListener('click', ()=>{
+      state.mobileMonthOverride = true;
+      state.view = 'month';
+      renderYearTabs();
+      renderMonthNav();
+      renderAll();
+    });
+
+    container.querySelectorAll('.mobile-box').forEach(box=>{
+      box.addEventListener('click', ()=>{
+        const hIdx = parseInt(box.dataset.habit,10);
+        const key = entryKey(year, monthObj.key, day, hIdx);
+        const cur = state.data.entries[key] || 0;
+        const next = cycleState(cur);
+        delete state.data.autoSkips[key];
+        if(next===0) delete state.data.entries[key];
+        else state.data.entries[key] = next;
+        saveData();
+        renderDailyView();
+      });
+    });
+    container.querySelectorAll('.cadence-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>openHabitModal(parseInt(btn.dataset.cadenceIdx,10)));
+    });
+    document.getElementById('addHabitBtn').addEventListener('click', ()=>openHabitModal(null));
+  }
+
+  function escapeAttr(s){
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  // ---------------- Cadence modal ----------------
+  const habitModal = document.getElementById('habitModal');
+  const modalHabitName = document.getElementById('modalHabitName');
+  const cadenceSummary = document.getElementById('cadenceSummary');
+  let editingHabitIdx = null;
+  let selectedDays = ALL_DAYS.slice();
+  let originalSelectedDays = ALL_DAYS.slice();
+
+  function updateCadenceControls(){
+    document.querySelectorAll('.weekday-btn').forEach(btn=>{
+      btn.classList.toggle('selected', selectedDays.includes(parseInt(btn.dataset.day,10)));
+    });
+    cadenceSummary.textContent = selectedDays.length ? cadenceLabel(selectedDays) : 'Seleziona almeno un giorno.';
+  }
+
+  function openHabitModal(idx){
+    editingHabitIdx = Number.isInteger(idx) ? idx : null;
+    document.getElementById('habitModalTitle').textContent = editingHabitIdx===null ? 'Nuova abitudine' : 'Modifica abitudine';
+    modalHabitName.value = editingHabitIdx===null ? '' : state.data.habits[editingHabitIdx];
+    selectedDays = editingHabitIdx===null ? ALL_DAYS.slice() : getCadence(editingHabitIdx).slice();
+    originalSelectedDays = selectedDays.slice();
+    updateCadenceControls();
+    habitModal.hidden = false;
+    setTimeout(()=>modalHabitName.focus(), 0);
+  }
+
+  function closeHabitModal(){ habitModal.hidden = true; }
+
+  document.querySelectorAll('.weekday-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const day = parseInt(btn.dataset.day,10);
+      selectedDays = selectedDays.includes(day) ? selectedDays.filter(d=>d!==day) : [...selectedDays, day];
+      updateCadenceControls();
+    });
+  });
+
+  document.querySelectorAll('.preset-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const preset = btn.dataset.preset;
+      if(preset==='all') selectedDays = ALL_DAYS.slice();
+      if(preset==='weekdays') selectedDays = [1,2,3,4,5];
+      if(preset==='mwf') selectedDays = [1,3,5];
+      if(preset==='none') selectedDays = [];
+      updateCadenceControls();
+    });
+  });
+
+  document.getElementById('cancelHabitModal').addEventListener('click', closeHabitModal);
+  document.getElementById('saveHabitModal').addEventListener('click', ()=>{
+    const name = modalHabitName.value.trim();
+    if(!name){ alert('Inserisci il nome dell’abitudine.'); modalHabitName.focus(); return; }
+    if(selectedDays.length===0){ alert('Seleziona almeno un giorno della settimana.'); return; }
+
+    if(editingHabitIdx===null){
+      const idx = state.data.habits.length;
+      state.data.habits.push(name);
+      state.data.cadences[idx] = selectedDays.slice();
+      applyCadenceToHabit(idx, selectedDays);
+    }else{
+      const cadenceChanged = !sameCadence(originalSelectedDays, selectedDays);
+      state.data.habits[editingHabitIdx] = name;
+      state.data.cadences[editingHabitIdx] = selectedDays.slice();
+      if(cadenceChanged) applyCadenceToHabit(editingHabitIdx, selectedDays);
+    }
+    saveData();
+    closeHabitModal();
+    renderMonthNav();
+    renderAll();
+  });
+
+  habitModal.addEventListener('click', e=>{
+    if(e.target===habitModal) closeHabitModal();
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape' && !habitModal.hidden) closeHabitModal();
+    if(e.key==='Enter' && !habitModal.hidden && e.target===modalHabitName){
+      document.getElementById('saveHabitModal').click();
+    }
+  });
+
+  // ---------------- Annual view ----------------
+  function heatColor(pct){
+    if(pct<=0) return 'rgba(255,255,255,0.04)';
+    if(pct<34) return 'rgba(232,115,74,0.18)';
+    if(pct<67) return 'rgba(232,115,74,0.42)';
+    if(pct<100) return 'rgba(232,115,74,0.7)';
+    return 'var(--ember)';
+  }
+
+  function renderAnnualView(){
+    const container = document.getElementById('annualView');
+    const habits = state.data.habits;
+    let html = `<div class="panel-head">
+      <div>
+        <div class="panel-title">Riepilogo annuale ${state.year}</div>
+        <div class="panel-sub">Percentuale di completamento per abitudine, mese per mese</div>
+      </div>
+    </div>`;
+
+    html += `<div class="grid-scroll"><table class="annual"><thead><tr><th style="text-align:left">Abitudine</th>`;
+    MONTHS.forEach(m=> html += `<th>${m.key}</th>`);
+    html += `<th>Media anno</th></tr></thead><tbody>`;
+
+    const monthAverages = new Array(12).fill(0);
+    const habitSeries = [];
+    habits.forEach((hname, hIdx)=>{
+      html += `<tr><td class="habit-lbl">${escapeAttr(hname)}</td>`;
+      let sum=0;
+      const series = [];
+      MONTHS.forEach((m,i)=>{
+        const nDays = daysInMonth(state.year, m.idx);
+        const stats = computeHabitStats(state.year, m.key, hIdx, nDays);
+        sum += stats.pct;
+        monthAverages[i] += stats.pct;
+        series.push(stats.pct);
+        html += `<td><span class="heat" style="background:${heatColor(stats.pct)}">${stats.pct}</span></td>`;
+      });
+      const yearAvg = Math.round(sum/12);
+      habitSeries.push({name:hname, pct:series});
+      html += `<td class="avg">${yearAvg}%</td></tr>`;
+    });
+
+    const overallSeries = monthAverages.map(v=>Math.round(v/Math.max(habits.length,1)));
+    html += `<tr class="avg-row"><td class="habit-lbl">Media mensile</td>`;
+    let totalAvg=0;
+    overallSeries.forEach(avg=>{
+      totalAvg += avg;
+      html += `<td>${avg}%</td>`;
+    });
+    html += `<td class="avg">${Math.round(totalAvg/12)}%</td></tr>`;
+
+    html += `</tbody></table></div>`;
+    html += renderTrendChart(habitSeries, overallSeries);
+    html += renderYearComparison();
+    container.innerHTML = html;
+  }
+
+  const CHART_COLORS = ['#e8734a','#6fb98f','#d9b25f','#7aa8d9','#c081d9','#e0e05f'];
+
+  function renderTrendChart(habitSeries, overallSeries){
+    const W=900, H=260, padL=34, padR=16, padT=16, padB=30;
+    const plotW=W-padL-padR, plotH=H-padT-padB;
+    const xFor=i=>padL+(i/11)*plotW;
+    const yFor=v=>padT+plotH-(v/100)*plotH;
+    function pathFor(series){
+      return series.map((v,i)=>(i===0?'M':'L')+xFor(i).toFixed(1)+' '+yFor(v).toFixed(1)).join(' ');
+    }
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">`;
+    [0,25,50,75,100].forEach(g=>{
+      const y=yFor(g);
+      svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+      svg += `<text x="${padL-8}" y="${y+3}" font-size="9" fill="var(--ink-faint)" text-anchor="end" font-family="IBM Plex Mono, monospace">${g}</text>`;
+    });
+    MONTHS.forEach((m,i)=>{
+      svg += `<text x="${xFor(i)}" y="${H-8}" font-size="9" fill="var(--ink-faint)" text-anchor="middle" font-family="IBM Plex Mono, monospace">${m.key}</text>`;
+    });
+    habitSeries.forEach((hs,idx)=>{
+      const color=CHART_COLORS[idx%CHART_COLORS.length];
+      svg += `<path d="${pathFor(hs.pct)}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.55"/>`;
+    });
+    svg += `<path d="${pathFor(overallSeries)}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+    overallSeries.forEach((v,i)=>{
+      svg += `<circle cx="${xFor(i)}" cy="${yFor(v)}" r="3" fill="var(--ink)"/>`;
+    });
+    svg += `</svg>`;
+
+    let legend = `<div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-size:11.5px; color:var(--ink-dim);">`;
+    legend += `<span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:14px;height:2.5px;background:var(--ink);display:inline-block;"></span>Media mensile</span>`;
+    habitSeries.forEach((hs,idx)=>{
+      const color=CHART_COLORS[idx%CHART_COLORS.length];
+      legend += `<span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:14px;height:2.5px;background:${color};display:inline-block; opacity:0.7;"></span>${escapeAttr(hs.name)}</span>`;
+    });
+    legend += `</div>`;
+
+    return `<div class="panel-head" style="margin-top:26px;">
+        <div>
+          <div class="panel-title" style="font-size:17px;">Andamento mensile</div>
+          <div class="panel-sub">% di completamento nel corso dell'anno</div>
+        </div>
+      </div>${svg}${legend}`;
+  }
+
+
+  function monthHasRecordedActivity(year, monthKey){
+    const prefix = year+'|'+monthKey+'|';
+    return Object.keys(state.data.entries).some(key=>{
+      if(!key.startsWith(prefix)) return false;
+      const value = state.data.entries[key];
+      return value===1 || (value===2 && state.data.autoSkips[key]!==true);
+    });
+  }
+
+  function comparisonStatsForYear(year){
+    const monthValues = MONTHS.map(month=>{
+      if(!monthHasRecordedActivity(year, month.key)) return null;
+      let sum = 0;
+      state.data.habits.forEach((_, habitIdx)=>{
+        const nDays = daysInMonth(year, month.idx);
+        sum += computeHabitStats(year, month.key, habitIdx, nDays).pct;
+      });
+      return Math.round(sum/Math.max(state.data.habits.length,1));
+    });
+
+    const activeValues = monthValues.filter(value=>value!==null);
+    const annualAverage = activeValues.length
+      ? Math.round(activeValues.reduce((sum,value)=>sum+value,0)/activeValues.length)
+      : null;
+
+    const habitAverages = state.data.habits.map((_, habitIdx)=>{
+      const values = MONTHS.map((month, monthIdx)=>{
+        if(monthValues[monthIdx]===null) return null;
+        const nDays = daysInMonth(year, month.idx);
+        return computeHabitStats(year, month.key, habitIdx, nDays).pct;
+      }).filter(value=>value!==null);
+      return values.length ? Math.round(values.reduce((sum,value)=>sum+value,0)/values.length) : null;
+    });
+
+    return {
+      year,
+      monthValues,
+      activeMonths:activeValues.length,
+      annualAverage,
+      habitAverages
+    };
+  }
+
+  function signedDifference(value){
+    if(value===null || value===undefined) return '—';
+    if(value===0) return '0 punti';
+    return (value>0?'+':'')+value+' punti';
+  }
+
+  function renderYearComparison(){
+    const stats = YEARS.map(comparisonStatsForYear);
+    const W=900, H=260, padL=34, padR=16, padT=16, padB=30;
+    const plotW=W-padL-padR, plotH=H-padT-padB;
+    const xFor=i=>padL+(i/11)*plotW;
+    const yFor=v=>padT+plotH-(v/100)*plotH;
+
+    function nullablePath(series){
+      let path='';
+      let drawing=false;
+      series.forEach((value,index)=>{
+        if(value===null){ drawing=false; return; }
+        path += (drawing?'L':'M')+xFor(index).toFixed(1)+' '+yFor(value).toFixed(1)+' ';
+        drawing=true;
+      });
+      return path.trim();
+    }
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">`;
+    [0,25,50,75,100].forEach(grid=>{
+      const y=yFor(grid);
+      svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
+      svg += `<text x="${padL-8}" y="${y+3}" font-size="9" fill="var(--ink-faint)" text-anchor="end" font-family="IBM Plex Mono, monospace">${grid}</text>`;
+    });
+    MONTHS.forEach((month,index)=>{
+      svg += `<text x="${xFor(index)}" y="${H-8}" font-size="9" fill="var(--ink-faint)" text-anchor="middle" font-family="IBM Plex Mono, monospace">${month.key}</text>`;
+    });
+
+    stats.forEach((yearStats,index)=>{
+      const color=CHART_COLORS[index%CHART_COLORS.length];
+      const path=nullablePath(yearStats.monthValues);
+      if(path) svg += `<path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>`;
+      yearStats.monthValues.forEach((value,monthIndex)=>{
+        if(value!==null) svg += `<circle cx="${xFor(monthIndex)}" cy="${yFor(value)}" r="3" fill="${color}"/>`;
+      });
+    });
+    svg += `</svg>`;
+
+    let legend = `<div style="display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-size:11.5px; color:var(--ink-dim);">`;
+    stats.forEach((yearStats,index)=>{
+      const color=CHART_COLORS[index%CHART_COLORS.length];
+      const status=yearStats.annualAverage===null ? ' · nessun dato' : '';
+      legend += `<span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:14px;height:2.5px;background:${color};display:inline-block;"></span>${yearStats.year}${status}</span>`;
+    });
+    legend += `</div>`;
+
+    let table = `<div class="grid-scroll"><table class="comparison-table"><thead><tr><th>Anno</th><th>Media</th><th>Mesi compilati</th><th>Differenza dal precedente</th></tr></thead><tbody>`;
+    let previousAvailable=null;
+    stats.forEach(yearStats=>{
+      if(yearStats.annualAverage===null){
+        table += `<tr><td class="year-value">${yearStats.year}</td><td class="no-data">Nessun dato</td><td>0/12</td><td>—</td></tr>`;
+        return;
+      }
+      const diff=previousAvailable ? yearStats.annualAverage-previousAvailable.annualAverage : null;
+      const diffClass=diff===null ? '' : (diff>0?'positive':(diff<0?'negative':''));
+      table += `<tr><td class="year-value">${yearStats.year}</td><td>${yearStats.annualAverage}%</td><td>${yearStats.activeMonths}/12</td><td class="${diffClass}">${signedDifference(diff)}</td></tr>`;
+      previousAvailable=yearStats;
+    });
+    table += `</tbody></table></div>`;
+
+    const available=stats.filter(item=>item.annualAverage!==null);
+    let report='';
+    if(available.length===0){
+      report = `<div class="report-item"><strong>Confronto non ancora disponibile</strong>Completa almeno un’abitudine per generare il report tra gli anni.</div>`;
+    }else{
+      const best=available.reduce((current,item)=>item.annualAverage>current.annualAverage?item:current, available[0]);
+      report += `<div class="report-item"><strong>Anno migliore</strong>${best.year} con una media del ${best.annualAverage}% su ${best.activeMonths} ${best.activeMonths===1?'mese compilato':'mesi compilati'}.</div>`;
+
+      if(available.length>=2){
+        const latest=available[available.length-1];
+        const previous=available[available.length-2];
+        const overallDiff=latest.annualAverage-previous.annualAverage;
+        const direction=overallDiff>0?'miglioramento':(overallDiff<0?'calo':'risultato stabile');
+        report += `<div class="report-item"><strong>Ultimo confronto</strong>${latest.year} rispetto al ${previous.year}: ${direction} di ${Math.abs(overallDiff)} ${Math.abs(overallDiff)===1?'punto':'punti'} percentuali.</div>`;
+
+        const habitDiffs=state.data.habits.map((name,index)=>({
+          name,
+          diff:(latest.habitAverages[index]??0)-(previous.habitAverages[index]??0)
+        }));
+        const improved=habitDiffs.reduce((best,item)=>item.diff>best.diff?item:best, habitDiffs[0]);
+        const declined=habitDiffs.reduce((worst,item)=>item.diff<worst.diff?item:worst, habitDiffs[0]);
+
+        if(improved && improved.diff>0){
+          report += `<div class="report-item"><strong>Miglioramento maggiore</strong>${escapeAttr(improved.name)}: +${improved.diff} punti tra ${previous.year} e ${latest.year}.</div>`;
+        }
+        if(declined && declined.diff<0){
+          report += `<div class="report-item"><strong>Calo maggiore</strong>${escapeAttr(declined.name)}: ${declined.diff} punti tra ${previous.year} e ${latest.year}.</div>`;
+        }
+      }else{
+        report += `<div class="report-item"><strong>Differenze tra anni</strong>È presente un solo anno con dati. Il confronto si attiverà quando compilerai anche un altro anno.</div>`;
+      }
+    }
+
+    return `<section class="comparison-section">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" style="font-size:17px;">Confronto tra gli anni</div>
+          <div class="panel-sub">Andamento mensile dal 2026 al 2030</div>
+        </div>
+      </div>
+      ${svg}${legend}${table}
+      <div class="comparison-report">${report}</div>
+      <div class="report-note">Le medie confrontano soltanto i mesi in cui hai registrato almeno un’attività. Gli anni vuoti non vengono considerati come 0%.</div>
+    </section>`;
+  }
+
+  function renderAll(){
+    const dailyPhoneMode = isPhoneView() && state.view==='month' && !state.mobileMonthOverride;
+    const appShell = document.getElementById('appShell');
+    appShell.classList.toggle('mobile-day-mode', dailyPhoneMode);
+    document.getElementById('monthNav').hidden = dailyPhoneMode;
+
+    if(dailyPhoneMode){
+      document.getElementById('monthView').style.display='';
+      document.getElementById('annualView').style.display='none';
+      renderDailyView();
+    }else if(state.view==='month'){
+      document.getElementById('monthView').style.display='';
+      document.getElementById('annualView').style.display='none';
+      renderMonthView();
+    }else{
+      document.getElementById('monthView').style.display='none';
+      document.getElementById('annualView').style.display='';
+      renderAnnualView();
+    }
+  }
+
+  document.getElementById('todayBtn').addEventListener('click', ()=>{
+    setMobileDate(initialTrackerDate);
+    state.view='month';
+    state.mobileMonthOverride = false;
+    renderYearTabs();
+    renderMonthNav();
+    renderAll();
+  });
+
+  PHONE_QUERY.addEventListener('change', event=>{
+    if(event.matches && state.view==='month') state.mobileMonthOverride = false;
+    renderYearTabs();
+    renderMonthNav();
+    renderAll();
+  });
+
+  function showSignedOut(){
+    document.getElementById('loginScreen').hidden = false;
+    document.getElementById('appShell').hidden = true;
+    document.getElementById('loginError').textContent = '';
+    if(unsubscribeCloud){ unsubscribeCloud(); unsubscribeCloud = null; }
+    currentUser = null;
+    userDocRef = null;
+  }
+
+  async function showSignedIn(user){
+    currentUser = user;
+    userDocRef = doc(db, 'users', user.uid, 'habitTracker', 'main');
+    document.getElementById('loginScreen').hidden = true;
+    document.getElementById('appShell').hidden = false;
+    document.getElementById('userEmail').textContent = user.email || user.displayName || 'Account Google';
+    const avatar = document.getElementById('userAvatar');
+    if(user.photoURL){ avatar.src = user.photoURL; avatar.hidden = false; } else { avatar.hidden = true; }
+    setSyncStatus('Caricamento…');
+
+    try{
+      const snap = await getDoc(userDocRef);
+      if(snap.exists() && snap.data().data){
+        applyingCloudData = true;
+        state.data = normalizeData(snap.data().data);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+        applyingCloudData = false;
+      }else{
+        await setDoc(userDocRef, {data: state.data, updatedAt: serverTimestamp(), email:user.email || ''}, {merge:true});
+      }
+    }catch(error){
+      console.error(error);
+      setSyncStatus('Offline · dati locali');
+    }
+
+    renderYearTabs();
+    renderMonthNav();
+    renderAll();
+
+    if(unsubscribeCloud) unsubscribeCloud();
+    unsubscribeCloud = onSnapshot(userDocRef, {includeMetadataChanges:true}, snapshot=>{
+      if(!snapshot.exists() || !snapshot.data().data) return;
+      const incoming = normalizeData(snapshot.data().data);
+      if(JSON.stringify(incoming) !== JSON.stringify(state.data)){
+        applyingCloudData = true;
+        state.data = incoming;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data));
+        renderAll();
+        applyingCloudData = false;
+      }
+      setSyncStatus(snapshot.metadata.fromCache ? 'Offline · cache' : 'Sincronizzato');
+    }, error=>{
+      console.error(error);
+      setSyncStatus('Errore sincronizzazione');
+    });
+  }
+
+  document.getElementById('googleLoginBtn').addEventListener('click', async ()=>{
+    const errorBox = document.getElementById('loginError');
+    errorBox.textContent = '';
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({prompt:'select_account'});
+    try{
+      await signInWithPopup(auth, provider);
+    }catch(error){
+      if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(error.code)){
+        await signInWithRedirect(auth, provider);
+      }else if(error.code !== 'auth/popup-closed-by-user'){
+        console.error(error);
+        errorBox.textContent = 'Accesso non riuscito. Controlla che Google sia abilitato in Firebase.';
+      }
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
+
+  getRedirectResult(auth).catch(error=>{
+    console.error(error);
+    document.getElementById('loginError').textContent = 'Accesso Google non riuscito.';
+  });
+
+  onAuthStateChanged(auth, user=>{
+    if(user) showSignedIn(user);
+    else showSignedOut();
+  });
+})();
+</script>
+</body>
+</html>
