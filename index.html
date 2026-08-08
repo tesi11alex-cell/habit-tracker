@@ -13,7 +13,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 
-<!-- Versione 2026-08-01-pwa-icon -->
+<!-- Versione 2026-08-08-ipad-fix-v2 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -349,6 +349,15 @@
 </style>
 </head>
 <body>
+<script>
+window.addEventListener('error', function(event){
+  const errorBox = document.getElementById('loginError');
+  if(errorBox && !errorBox.textContent){
+    errorBox.textContent = 'Errore di avvio. Ricarica la pagina con Internet attivo.';
+  }
+  console.error('Errore Habit Tracker', event.error || event.message);
+});
+</script>
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
     <h2>Habit <em style="color:var(--gold);font-weight:400;">Tracker</em></h2>
@@ -420,17 +429,10 @@
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
-  getRedirectResult, onAuthStateChanged, signOut
-} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js";
-import {
-  initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, getDoc, setDoc, onSnapshot, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
-
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyAtMWCBxgR-rJ1F3PHlMyp6egBBXOecIww",
   authDomain: "habit-tracker-alessandro.firebaseapp.com",
@@ -440,16 +442,67 @@ const firebaseConfig = {
   appId: "1:787927975492:web:e78a449ea16bfbbeec9e11"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const auth = firebaseApp.auth();
 auth.languageCode = 'it';
-let db;
-try{
-  db = initializeFirestore(firebaseApp, {
-    localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})
-  });
-}catch(error){
-  db = initializeFirestore(firebaseApp, {});
+const db = firebaseApp.firestore();
+
+const browserLocalPersistence = firebase.auth.Auth.Persistence.LOCAL;
+auth.setPersistence(browserLocalPersistence).catch(error=>{
+  console.warn('Persistenza accesso non disponibile', error);
+});
+
+db.enablePersistence({synchronizeTabs:true}).catch(error=>{
+  console.warn('Persistenza offline Firestore non disponibile', error);
+});
+
+// Compat layer: mantiene invariata la logica del tracker.
+function GoogleAuthProvider(){ return new firebase.auth.GoogleAuthProvider(); }
+function signInWithPopup(authInstance, provider){ return authInstance.signInWithPopup(provider); }
+function getRedirectResult(authInstance){ return authInstance.getRedirectResult(); }
+function onAuthStateChanged(authInstance, callback){ return authInstance.onAuthStateChanged(callback); }
+function signOut(authInstance){ return authInstance.signOut(); }
+function serverTimestamp(){ return firebase.firestore.FieldValue.serverTimestamp(); }
+
+function doc(dbInstance, ...segments){
+  if(segments.length < 2 || segments.length % 2 !== 0){
+    throw new Error('Percorso Firestore non valido');
+  }
+  let ref = dbInstance.collection(segments[0]).doc(segments[1]);
+  for(let i=2; i<segments.length; i+=2){
+    ref = ref.collection(segments[i]).doc(segments[i+1]);
+  }
+  return ref;
+}
+async function getDoc(ref){
+  const snap = await ref.get();
+  return {
+    exists: ()=>snap.exists,
+    data: ()=>snap.data(),
+    metadata: snap.metadata
+  };
+}
+function setDoc(ref, data, options){ return ref.set(data, options); }
+function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
+  if(typeof optionsOrNext === 'function'){
+    return ref.onSnapshot(
+      snap=>optionsOrNext({
+        exists: ()=>snap.exists,
+        data: ()=>snap.data(),
+        metadata: snap.metadata
+      }),
+      nextOrError
+    );
+  }
+  return ref.onSnapshot(
+    optionsOrNext,
+    snap=>nextOrError({
+      exists: ()=>snap.exists,
+      data: ()=>snap.data(),
+      metadata: snap.metadata
+    }),
+    maybeError
+  );
 }
 
 (function(){
@@ -1356,12 +1409,17 @@ try{
     renderAll();
   });
 
-  PHONE_QUERY.addEventListener('change', event=>{
+  const handlePhoneQueryChange = event=>{
     if(event.matches && state.view==='month') state.mobileMonthOverride = false;
     renderYearTabs();
     renderMonthNav();
     renderAll();
-  });
+  };
+  if(typeof PHONE_QUERY.addEventListener === 'function'){
+    PHONE_QUERY.addEventListener('change', handlePhoneQueryChange);
+  }else if(typeof PHONE_QUERY.addListener === 'function'){
+    PHONE_QUERY.addListener(handlePhoneQueryChange);
+  }
 
   function showSignedOut(){
     document.getElementById('loginScreen').hidden = false;
@@ -1423,27 +1481,30 @@ try{
 
   document.getElementById('googleLoginBtn').addEventListener('click', async ()=>{
     const errorBox = document.getElementById('loginError');
+    const loginBtn = document.getElementById('googleLoginBtn');
     errorBox.textContent = '';
+    loginBtn.disabled = true;
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({prompt:'select_account'});
     try{
       await signInWithPopup(auth, provider);
     }catch(error){
-      if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(error.code)){
-        await signInWithRedirect(auth, provider);
-      }else if(error.code !== 'auth/popup-closed-by-user'){
-        console.error(error);
-        errorBox.textContent = 'Accesso non riuscito. Controlla che Google sia abilitato in Firebase.';
+      console.error('Errore accesso Google', error);
+      if(error.code === 'auth/popup-closed-by-user'){
+        errorBox.textContent = 'Accesso annullato.';
+      }else if(error.code === 'auth/popup-blocked'){
+        errorBox.textContent = 'Safari ha bloccato la finestra Google. Apri il Tracker in Safari e riprova.';
+      }else if(error.code === 'auth/unauthorized-domain'){
+        errorBox.textContent = 'Il dominio dell’app non è autorizzato in Firebase.';
+      }else{
+        errorBox.textContent = 'Accesso Google non riuscito: ' + (error.code || error.message || 'errore sconosciuto');
       }
+    }finally{
+      loginBtn.disabled = false;
     }
   });
 
   document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
-
-  getRedirectResult(auth).catch(error=>{
-    console.error(error);
-    document.getElementById('loginError').textContent = 'Accesso Google non riuscito.';
-  });
 
   onAuthStateChanged(auth, user=>{
     if(user) showSignedIn(user);

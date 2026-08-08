@@ -1,0 +1,23 @@
+HABIT TRACKER — FIX IPAD V2
+
+COSA CAMBIA
+- Stesso progetto Firebase e stessi dati.
+- Nessuna modifica alla struttura del database.
+- Firebase JS passa alla versione COMPAT, come l'Agenda che funziona su iPad.
+- Login Google tramite popup diretto; eliminato il fallback redirect cross-domain.
+- Compatibilità aggiunta per MediaQuery su Safari/iPad meno recenti.
+- Service Worker aggiornato a v2 e cache Firebase SDK.
+
+SU GITHUB
+Sostituisci SOLO:
+1. index.html
+2. sw.js
+
+Il manifest può rimanere invariato (quello incluso è identico).
+
+NON cancellare i dati Firebase.
+NON creare un nuovo progetto Firebase.
+
+DOPO IL CARICAMENTO
+Apri prima il sito Habit Tracker in Safari su iPad.
+Se funziona e accedi con Google, poi elimina solo la vecchia icona Home e aggiungila di nuovo da Safari.
