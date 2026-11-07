@@ -34,6 +34,20 @@
     --good: #6fb98f;
     --today: #ffffff;
     --radius: 10px;
+
+    /* Dimensioni adattive (sovrascritte per 14" e 27" nei media query in fondo) */
+    --wrap-max: 1180px;
+    --habit-w: 190px;
+    --tot-w: 52px;
+    --day-w: 30px;
+    --box: 22px;
+    --fs-habit: 14px;
+    --fs-day: 11px;
+    --fs-tot: 13px;
+    --fs-daytotal: 8.5px;
+    --fs-check: 12px;
+    --fs-cadence: 9.5px;
+    --panel-pad: 26px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -44,7 +58,7 @@
     min-height: 100vh;
     padding: 32px 20px 80px;
   }
-  .wrap{ max-width: 1180px; margin: 0 auto; }
+  .wrap{ max-width: var(--wrap-max); margin: 0 auto; }
 
   /* ---------- Header ---------- */
   header.top{
@@ -90,11 +104,15 @@
   .m-btn:hover{ border-color: var(--ember); color: var(--ink); }
   .m-btn.active{ background: var(--ember-soft); border-color: var(--ember); color: var(--ember); font-weight:600; }
   .m-btn.summary{ margin-left: auto; border-style: dashed; }
+  .nav-tail{ margin-left:auto; display:flex; gap:8px; flex-shrink:0; }
+  .nav-tail .m-btn.summary{ margin-left:0; }
+  .m-btn.today-nav{ color: var(--gold); border-color: rgba(217,178,95,.45); }
+  .m-btn.today-nav:hover{ color: var(--ink); border-color: var(--gold); }
 
   /* ---------- Panel ---------- */
   .panel{
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 26px; margin-bottom: 24px;
+    padding: var(--panel-pad); margin-bottom: 24px;
   }
   .panel-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
   .panel-title{ font-family:'Fraunces', serif; font-size: 21px; font-weight:600; }
@@ -106,24 +124,28 @@
 
   /* ---------- Table ---------- */
   .grid-scroll{ overflow-x:auto; padding-bottom: 6px; }
-  table.tracker{ border-collapse: collapse; width:100%; min-width: 920px; }
+  table.tracker{
+    border-collapse: collapse; width:100%; table-layout: fixed;
+    min-width: calc(var(--habit-w) + 2 * var(--tot-w) + 31 * var(--day-w));
+  }
   table.tracker th, table.tracker td{ text-align:center; padding:0; }
-  .habit-col{ text-align:left !important; min-width: 190px; max-width:190px; padding: 0 12px !important; }
-  .day-col{ width: 30px; }
+  .habit-col{ text-align:left !important; width: var(--habit-w); padding: 0 12px !important; }
+  .day-col{ width: var(--day-w); }
   th.day-num{
-    font-family:'IBM Plex Mono', monospace; font-size:11px; color: var(--ink-faint);
+    font-family:'IBM Plex Mono', monospace; font-size:var(--fs-day); color: var(--ink-faint);
     font-weight:500; padding-bottom:6px; border-bottom:1px solid var(--line);
   }
   th.day-num.weekend{ color: var(--gold); }
   th.day-num.today{ color: #000; background: var(--today); border-radius: 5px 5px 0 0; padding: 3px 4px; }
   .box.today-col{ box-shadow: 0 0 0 2px var(--today) inset; }
   .day-total-num.today-col{ box-shadow: 0 0 0 2px var(--today) inset; border-radius:5px; padding:2px 4px; }
+  th.tot-head{ width: var(--tot-w); }
   th.habit-head, th.tot-head{
     font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint);
     padding-bottom:8px; border-bottom:1px solid var(--line); font-weight:600;
   }
   td.habit-name{
-    font-size:14px; font-weight:500; color: var(--ink); padding: 11px 12px !important;
+    font-size:var(--fs-habit); font-weight:500; color: var(--ink); padding: 11px 12px !important;
     border-bottom:1px solid var(--line-soft); position: relative;
   }
   .habit-name input{
@@ -133,7 +155,7 @@
   .habit-meta{ margin-top:5px; display:flex; align-items:center; gap:6px; }
   .cadence-btn{
     background:none; border:none; padding:0; color:var(--ink-faint); cursor:pointer;
-    font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-align:left;
+    font-family:'IBM Plex Mono', monospace; font-size:var(--fs-cadence); text-align:left;
   }
   .cadence-btn:hover{ color:var(--gold); }
   .del-habit{
@@ -146,10 +168,10 @@
 
   td.cell{ border-bottom:1px solid var(--line-soft); padding: 5px 2px !important; }
   .box{
-    width: 22px; height:22px; margin:0 auto; border-radius:6px;
+    width: var(--box); height: var(--box); margin:0 auto; border-radius:6px;
     border: 1px solid var(--line); cursor:pointer; user-select:none;
     display:flex; align-items:center; justify-content:center;
-    font-size: 12px; color:transparent; transition: all .1s ease;
+    font-size: var(--fs-check); color:transparent; transition: all .1s ease;
     background: rgba(255,255,255,0.02);
   }
   .box:hover{ border-color: var(--ink-faint); }
@@ -161,13 +183,13 @@
   .box.off::after{ content:"–"; color:var(--ink-faint); }
   .box.off:hover{ border-color:var(--line-soft); }
 
-  td.tot-cell{ font-family:'IBM Plex Mono', monospace; font-size:13px; border-bottom:1px solid var(--line-soft); color: var(--ink); font-weight:500; }
-  td.pct-cell{ font-family:'IBM Plex Mono', monospace; font-size:13px; border-bottom:1px solid var(--line-soft); color: var(--gold); font-weight:600; }
+  td.tot-cell{ font-family:'IBM Plex Mono', monospace; font-size:var(--fs-tot); border-bottom:1px solid var(--line-soft); color: var(--ink); font-weight:500; }
+  td.pct-cell{ font-family:'IBM Plex Mono', monospace; font-size:var(--fs-tot); border-bottom:1px solid var(--line-soft); color: var(--gold); font-weight:600; }
 
   tr.daily-total td{ padding-top:12px !important; }
   tr.daily-total .habit-name{ font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-dim); border-bottom:none;}
   tr.daily-total td.cell{ border-bottom:none; }
-  .day-total-num{ font-family:'IBM Plex Mono', monospace; font-size:8.5px; color: var(--ink-faint); white-space:nowrap; letter-spacing:-0.02em; }
+  .day-total-num{ font-family:'IBM Plex Mono', monospace; font-size:var(--fs-daytotal); color: var(--ink-faint); white-space:nowrap; letter-spacing:-0.02em; }
   .day-total-num.full{ color: var(--good); font-weight:700; }
 
   .add-habit-row{ margin-top:14px; }
@@ -345,7 +367,86 @@
     .m-btn.summary{ margin-left:0; }
     .mobile-month-toolbar{ display:flex; }
     .comparison-report{ grid-template-columns:1fr; }
+    .nav-tail{ margin-left:0; }
+    .m-btn.today-nav{ display:none; }   /* su telefono "Vai a oggi" resta nell'intestazione */
   }
+
+  /* ---------- Desktop e tablet: "Vai a oggi" sta accanto a "Riepilogo annuale" ---------- */
+  @media (min-width: 701px){
+    .today-header{ display:none; }
+  }
+
+  /* ---------- Portatile 14" (≈1280–1919 px): 31 giorni senza scroll orizzontale ---------- */
+  @media (min-width: 1280px){
+    :root{
+      --wrap-max: 1500px; --habit-w: 200px; --tot-w: 52px; --day-w: 28px;
+      --box: 24px; --fs-check: 13px; --panel-pad: 22px;
+    }
+    nav.months{ gap: 6px; }
+    .m-btn{ font-size: 13px; padding: 9px 11px; }
+  }
+  @media (min-width: 1440px){
+    :root{
+      --wrap-max: 1560px; --habit-w: 220px; --tot-w: 56px; --day-w: 30px;
+      --box: 27px; --fs-habit: 15px; --fs-day: 12px; --fs-tot: 14px;
+      --fs-daytotal: 10px; --fs-check: 14px; --fs-cadence: 10.5px; --panel-pad: 26px;
+    }
+    h1{ font-size: 38px; }
+    nav.months{ gap: 8px; }
+    .m-btn{ font-size: 13.5px; padding: 9px 16px; }
+  }
+
+  /* ---------- Monitor 27" (≥1920 px): sfrutta tutta la larghezza ---------- */
+  @media (min-width: 1920px){
+    :root{
+      --wrap-max: 2000px; --habit-w: 280px; --tot-w: 76px; --day-w: 42px;
+      --box: 34px; --fs-habit: 17px; --fs-day: 13px; --fs-tot: 16px;
+      --fs-daytotal: 11.5px; --fs-check: 16px; --fs-cadence: 12px; --panel-pad: 32px;
+    }
+    body{ padding: 40px 28px 100px; }
+    h1{ font-size: 44px; }
+    .brand-eyebrow{ font-size: 12.5px; }
+    .panel-title{ font-size: 26px; }
+    .panel-sub{ font-size: 13px; }
+    .legend{ font-size: 14px; }
+    .m-btn{ font-size: 15.5px; padding: 11px 20px; }
+    .tool-btn{ font-size: 14px; padding: 10px 18px; }
+    .year-tab{ width: 40px; height: 36px; font-size: 18px; }
+    .year-current{ font-size: 15px; min-width: 68px; }
+    .user-email{ font-size: 13px; max-width: 240px; }
+    .sync-status{ font-size: 11px; }
+    th.habit-head, th.tot-head{ font-size: 12.5px; }
+    td.habit-name{ padding: 14px 14px !important; }
+    td.cell{ padding: 7px 2px !important; }
+    .box{ border-radius: 8px; }
+    table.annual th, table.annual td{ font-size: 15px; padding: 13px 10px; }
+    table.annual th{ font-size: 12px; }
+    .heat{ width: 48px; height: 28px; line-height: 28px; }
+    .comparison-table th, .comparison-table td{ font-size: 14px; }
+    .report-item{ font-size: 14.5px; }
+    #annualView svg{ max-height: 440px; }
+  }
+  @media (min-width: 2400px){
+    :root{
+      --wrap-max: 2360px; --habit-w: 330px; --tot-w: 92px; --day-w: 50px;
+      --box: 42px; --fs-habit: 19px; --fs-day: 15px; --fs-tot: 18px;
+      --fs-daytotal: 13.5px; --fs-check: 19px; --fs-cadence: 13.5px; --panel-pad: 38px;
+    }
+    h1{ font-size: 50px; }
+    .panel-title{ font-size: 30px; }
+    .m-btn{ font-size: 17px; padding: 12px 24px; }
+    .heat{ width: 56px; height: 32px; line-height: 32px; }
+    table.annual th, table.annual td{ font-size: 17px; }
+    #annualView svg{ max-height: 520px; }
+  }
+
+  /* Fascia di oggi: evidenzia tutta la colonna del giorno corrente */
+  td.cell.today-cell{ background: rgba(255,255,255,.05); }
+
+  /* Cadenza mensile nella finestra dell'abitudine */
+  .preset-btn.selected{ background: var(--ember-soft); color: var(--ember); border-color: var(--ember); font-weight: 700; }
+  .weekday-row.dimmed{ opacity: .35; }
+  .monthly-hint{ color: var(--ink-faint); font-size: 11.5px; line-height: 1.4; margin: -2px 0 0; }
 </style>
 </head>
 <body>
@@ -374,7 +475,7 @@ window.addEventListener('error', function(event){
       <h1>Habit <em>Tracker</em></h1>
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
-      <button class="tool-btn" id="todayBtn">Vai a oggi</button>
+      <button class="tool-btn today-header" id="todayBtn">Vai a oggi</button>
       <div class="year-tabs" id="yearTabs"></div>
       <div class="user-box">
         <img class="user-avatar" id="userAvatar" alt="" hidden>
@@ -420,6 +521,12 @@ window.addEventListener('error', function(event){
       <button type="button" class="weekday-btn" data-day="6">Sab</button>
       <button type="button" class="weekday-btn" data-day="0">Dom</button>
     </div>
+    <span class="field-label">Oppure una volta al mese</span>
+    <div class="preset-row" id="monthlyRow">
+      <button type="button" class="preset-btn monthly-btn" data-month="first">1° del mese</button>
+      <button type="button" class="preset-btn monthly-btn" data-month="last">Fine mese</button>
+    </div>
+    <div class="monthly-hint">Puoi scegliere uno solo o entrambi. Con la cadenza mensile i giorni della settimana non vengono usati.</div>
     <div class="cadence-summary" id="cadenceSummary"></div>
 
     <div class="modal-actions">
@@ -555,6 +662,11 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
     if(!safe.entries || typeof safe.entries!=='object' || Array.isArray(safe.entries)) safe.entries = {};
     if(!safe.cadences || typeof safe.cadences!=='object' || Array.isArray(safe.cadences)) safe.cadences = {};
     if(!safe.autoSkips || typeof safe.autoSkips!=='object' || Array.isArray(safe.autoSkips)) safe.autoSkips = {};
+    if(!safe.monthlyCadences || typeof safe.monthlyCadences!=='object' || Array.isArray(safe.monthlyCadences)) safe.monthlyCadences = {};
+    Object.keys(safe.monthlyCadences).forEach(k=>{
+      const v = Array.isArray(safe.monthlyCadences[k]) ? [...new Set(safe.monthlyCadences[k].filter(x=>x==='first' || x==='last'))] : [];
+      if(v.length) safe.monthlyCadences[k] = v; else delete safe.monthlyCadences[k];
+    });
     safe.cadenceAutoAppliedV1 = safe.cadenceAutoAppliedV1 === true;
     safe.habits.forEach((name, idx)=>{
       safe.cadences[idx] = normalizeCadence(safe.cadences[idx], name);
@@ -565,7 +677,7 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
   function createDefaultData(){
     const cadences = {};
     Object.keys(DEFAULT_CADENCES).forEach(k=> cadences[k] = DEFAULT_CADENCES[k].slice());
-    return { habits: DEFAULT_HABITS.slice(), entries: {}, cadences, autoSkips: {}, cadenceAutoAppliedV1: false };
+    return { habits: DEFAULT_HABITS.slice(), entries: {}, cadences, monthlyCadences: {}, autoSkips: {}, cadenceAutoAppliedV1: false };
   }
 
   function loadData(){
@@ -662,6 +774,38 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
     return getCadence(habitIdx).includes(new Date(year, monthIdx, day).getDay());
   }
 
+  // Cadenza mensile: 'first' = 1° del mese, 'last' = ultimo giorno del mese
+  function getMonthly(habitIdx){
+    const m = state.data.monthlyCadences && state.data.monthlyCadences[habitIdx];
+    return Array.isArray(m) ? m.filter(v=>v==='first' || v==='last') : [];
+  }
+  function setMonthly(habitIdx, list){
+    if(!state.data.monthlyCadences) state.data.monthlyCadences = {};
+    if(list.length) state.data.monthlyCadences[habitIdx] = list.slice();
+    else delete state.data.monthlyCadences[habitIdx];
+  }
+  function monthlyLabel(list){
+    const hasFirst = list.includes('first'), hasLast = list.includes('last');
+    if(hasFirst && hasLast) return '1° e ultimo giorno del mese';
+    if(hasFirst) return 'Solo il 1° del mese';
+    if(hasLast) return 'Solo l’ultimo giorno del mese';
+    return '';
+  }
+  function habitCadenceLabel(habitIdx){
+    const monthly = getMonthly(habitIdx);
+    return monthly.length ? monthlyLabel(monthly) : cadenceLabel(getCadence(habitIdx));
+  }
+  function isDayScheduled(year, monthIdx, day, weekdays, monthly){
+    if(monthly.length){
+      return (monthly.includes('first') && day===1) ||
+             (monthly.includes('last') && day===daysInMonth(year, monthIdx));
+    }
+    return weekdays.includes(new Date(year, monthIdx, day).getDay());
+  }
+  function sameList(a, b){
+    return [...a].sort().join('|') === [...b].sort().join('|');
+  }
+
   function sameCadence(a, b){
     const left = [...a].map(Number).sort((x,y)=>x-y);
     const right = [...b].map(Number).sort((x,y)=>x-y);
@@ -670,12 +814,13 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
 
   function applyCadenceToHabit(habitIdx, days){
     const selected = normalizeCadence(days, state.data.habits[habitIdx]);
+    const monthly = getMonthly(habitIdx);
     YEARS.forEach(year=>{
       MONTHS.forEach(month=>{
         const nDays = daysInMonth(year, month.idx);
         for(let day=1; day<=nDays; day++){
           const key = entryKey(year, month.key, day, habitIdx);
-          const scheduled = selected.includes(new Date(year, month.idx, day).getDay());
+          const scheduled = isDayScheduled(year, month.idx, day, selected, monthly);
           const wasAutomatic = state.data.autoSkips[key] === true;
           const current = state.data.entries[key];
 
@@ -792,7 +937,16 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
       renderMonthNav();
       renderAll();
     };
-    el.appendChild(sum);
+    // "Vai a oggi" accanto a "Riepilogo annuale" (su telefono resta nell'intestazione)
+    const todayNav = document.createElement('button');
+    todayNav.type = 'button';
+    todayNav.className = 'm-btn today-nav';
+    todayNav.textContent = 'Vai a oggi';
+    todayNav.onclick = goToToday;
+    const tail = document.createElement('div');
+    tail.className = 'nav-tail';
+    tail.append(todayNav, sum);
+    el.appendChild(tail);
   }
 
   // ---------------- Statistics ----------------
@@ -853,14 +1007,14 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
     habits.forEach((hname, hIdx)=>{
       html += `<tr><td class="habit-name">
         <input type="text" value="${escapeAttr(hname)}" data-habit-idx="${hIdx}" class="habit-input">
-        <div class="habit-meta"><button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica cadenza">${escapeAttr(cadenceLabel(getCadence(hIdx)))}</button></div>
+        <div class="habit-meta"><button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica cadenza">${escapeAttr(habitCadenceLabel(hIdx))}</button></div>
         <button class="del-habit" data-del-idx="${hIdx}" title="Rimuovi abitudine">✕</button>
       </td>`;
       for(let d=1; d<=nDays; d++){
         const v = state.data.entries[entryKey(state.year, state.month, d, hIdx)] || 0;
         const cls = v===1 ? 'done' : (v===2 ? 'skip' : '');
         const td = isToday(state.year, monthObj.idx, d) ? ' today-col' : '';
-        html += `<td class="cell"><div class="box ${cls}${td}" data-day="${d}" data-habit="${hIdx}" title="Clic: fatto → non applicabile → da fare"></div></td>`;
+        html += `<td class="cell${td?' today-cell':''}"><div class="box ${cls}${td}" data-day="${d}" data-habit="${hIdx}" title="Clic: fatto → non applicabile → da fare"></div></td>`;
       }
       const stats = computeHabitStats(state.year, state.month, hIdx, nDays);
       html += `<td class="tot-cell">${stats.done}/${stats.applicable}</td><td class="pct-cell">${stats.pct}%</td></tr>`;
@@ -871,7 +1025,7 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
       const t = dayTotal(state.year, state.month, monthObj.idx, d, habits.length);
       const full = t.applicable>0 && t.done===t.applicable;
       const td = isToday(state.year, monthObj.idx, d) ? ' today-col' : '';
-      html += `<td class="cell"><div class="day-total-num${full?' full':''}${td}">${t.done}/${t.applicable}</div></td>`;
+      html += `<td class="cell${td?' today-cell':''}"><div class="day-total-num${full?' full':''}${td}">${t.done}/${t.applicable}</div></td>`;
     }
     html += `<td></td><td></td></tr>`;
 
@@ -936,6 +1090,13 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
         });
         state.data.cadences = newCadences;
 
+        const newMonthly = {};
+        state.data.habits.forEach((name, newIdx)=>{
+          const oldIdx = newIdx>=idx ? newIdx+1 : newIdx;
+          if(state.data.monthlyCadences && state.data.monthlyCadences[oldIdx]) newMonthly[newIdx] = state.data.monthlyCadences[oldIdx];
+        });
+        state.data.monthlyCadences = newMonthly;
+
         saveData();
         renderMonthView();
       });
@@ -996,7 +1157,7 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
         <div class="mobile-habit-copy">
           <div class="mobile-habit-name">${escapeAttr(hname)}</div>
           <div class="mobile-habit-status">${status}</div>
-          <button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica abitudine e cadenza">${escapeAttr(cadenceLabel(getCadence(hIdx)))}</button>
+          <button type="button" class="cadence-btn" data-cadence-idx="${hIdx}" title="Modifica abitudine e cadenza">${escapeAttr(habitCadenceLabel(hIdx))}</button>
         </div>
         <button type="button" class="box mobile-box ${cls}" data-day="${day}" data-habit="${hIdx}" aria-label="${escapeAttr(hname)}: ${status}" title="Tocca: fatto → non applicabile → da fare"></button>
       </div>`;
@@ -1047,12 +1208,21 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
   let editingHabitIdx = null;
   let selectedDays = ALL_DAYS.slice();
   let originalSelectedDays = ALL_DAYS.slice();
+  let selectedMonthly = [];
+  let originalMonthly = [];
 
   function updateCadenceControls(){
+    const monthlyOn = selectedMonthly.length>0;
+    document.getElementById('weekdayRow').classList.toggle('dimmed', monthlyOn);
     document.querySelectorAll('.weekday-btn').forEach(btn=>{
-      btn.classList.toggle('selected', selectedDays.includes(parseInt(btn.dataset.day,10)));
+      btn.classList.toggle('selected', !monthlyOn && selectedDays.includes(parseInt(btn.dataset.day,10)));
     });
-    cadenceSummary.textContent = selectedDays.length ? cadenceLabel(selectedDays) : 'Seleziona almeno un giorno.';
+    document.querySelectorAll('.monthly-btn').forEach(btn=>{
+      btn.classList.toggle('selected', selectedMonthly.includes(btn.dataset.month));
+    });
+    cadenceSummary.textContent = monthlyOn
+      ? monthlyLabel(selectedMonthly)
+      : (selectedDays.length ? cadenceLabel(selectedDays) : 'Seleziona almeno un giorno.');
   }
 
   function openHabitModal(idx){
@@ -1061,6 +1231,8 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
     modalHabitName.value = editingHabitIdx===null ? '' : state.data.habits[editingHabitIdx];
     selectedDays = editingHabitIdx===null ? ALL_DAYS.slice() : getCadence(editingHabitIdx).slice();
     originalSelectedDays = selectedDays.slice();
+    selectedMonthly = editingHabitIdx===null ? [] : getMonthly(editingHabitIdx);
+    originalMonthly = selectedMonthly.slice();
     updateCadenceControls();
     habitModal.hidden = false;
     setTimeout(()=>modalHabitName.focus(), 0);
@@ -1071,14 +1243,28 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
   document.querySelectorAll('.weekday-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const day = parseInt(btn.dataset.day,10);
-      selectedDays = selectedDays.includes(day) ? selectedDays.filter(d=>d!==day) : [...selectedDays, day];
+      if(selectedMonthly.length){
+        selectedMonthly = [];
+        selectedDays = [day];
+      }else{
+        selectedDays = selectedDays.includes(day) ? selectedDays.filter(d=>d!==day) : [...selectedDays, day];
+      }
       updateCadenceControls();
     });
   });
 
-  document.querySelectorAll('.preset-btn').forEach(btn=>{
+  document.querySelectorAll('.monthly-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.month;
+      selectedMonthly = selectedMonthly.includes(key) ? selectedMonthly.filter(v=>v!==key) : [...selectedMonthly, key];
+      updateCadenceControls();
+    });
+  });
+
+  document.querySelectorAll('.preset-btn[data-preset]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const preset = btn.dataset.preset;
+      selectedMonthly = [];
       if(preset==='all') selectedDays = ALL_DAYS.slice();
       if(preset==='weekdays') selectedDays = [1,2,3,4,5];
       if(preset==='mwf') selectedDays = [1,3,5];
@@ -1091,18 +1277,23 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
   document.getElementById('saveHabitModal').addEventListener('click', ()=>{
     const name = modalHabitName.value.trim();
     if(!name){ alert('Inserisci il nome dell’abitudine.'); modalHabitName.focus(); return; }
-    if(selectedDays.length===0){ alert('Seleziona almeno un giorno della settimana.'); return; }
+    if(selectedMonthly.length===0 && selectedDays.length===0){
+      alert('Seleziona almeno un giorno della settimana oppure una cadenza mensile.'); return;
+    }
+    const weeklyDays = selectedDays.length ? selectedDays.slice() : ALL_DAYS.slice();
 
     if(editingHabitIdx===null){
       const idx = state.data.habits.length;
       state.data.habits.push(name);
-      state.data.cadences[idx] = selectedDays.slice();
-      applyCadenceToHabit(idx, selectedDays);
+      state.data.cadences[idx] = weeklyDays;
+      setMonthly(idx, selectedMonthly);
+      applyCadenceToHabit(idx, weeklyDays);
     }else{
-      const cadenceChanged = !sameCadence(originalSelectedDays, selectedDays);
+      const cadenceChanged = !sameCadence(originalSelectedDays, selectedDays) || !sameList(originalMonthly, selectedMonthly);
       state.data.habits[editingHabitIdx] = name;
-      state.data.cadences[editingHabitIdx] = selectedDays.slice();
-      if(cadenceChanged) applyCadenceToHabit(editingHabitIdx, selectedDays);
+      state.data.cadences[editingHabitIdx] = weeklyDays;
+      setMonthly(editingHabitIdx, selectedMonthly);
+      if(cadenceChanged) applyCadenceToHabit(editingHabitIdx, weeklyDays);
     }
     saveData();
     closeHabitModal();
@@ -1400,14 +1591,15 @@ function onSnapshot(ref, optionsOrNext, nextOrError, maybeError){
     }
   }
 
-  document.getElementById('todayBtn').addEventListener('click', ()=>{
+  function goToToday(){
     setMobileDate(initialTrackerDate);
     state.view='month';
     state.mobileMonthOverride = false;
     renderYearTabs();
     renderMonthNav();
     renderAll();
-  });
+  }
+  document.getElementById('todayBtn').addEventListener('click', goToToday);
 
   const handlePhoneQueryChange = event=>{
     if(event.matches && state.view==='month') state.mobileMonthOverride = false;
